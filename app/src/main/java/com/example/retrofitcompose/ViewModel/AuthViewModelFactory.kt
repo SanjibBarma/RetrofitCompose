@@ -6,6 +6,6 @@ import androidx.lifecycle.ViewModelProvider
 
 class AuthViewModelFactory(private val context: Context): ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return AuthViewModel(context) as T
+        return AuthSharedViewModel(context) as T
     }
 }

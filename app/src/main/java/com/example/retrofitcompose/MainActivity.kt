@@ -13,12 +13,17 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModelProvider
+import com.example.retrofitcompose.AppDatabase.AppDatabase
 import com.example.retrofitcompose.Network.RetrofitInstance
 import com.example.retrofitcompose.Repository.PostRepository
+import com.example.retrofitcompose.Repository.RoomPostRepository
 import com.example.retrofitcompose.Screen.LoginScreen
-import com.example.retrofitcompose.ViewModel.AuthViewModel
+import com.example.retrofitcompose.ViewModel.AuthSharedViewModel
 import com.example.retrofitcompose.ViewModel.AuthViewModelFactory
 import com.example.retrofitcompose.ViewModel.PostViewModel
+import com.example.retrofitcompose.ViewModel.RoomPostViewModel
+import com.example.retrofitcompose.ViewModel.RoomPostViewModelFactory
 import com.example.retrofitcompose.ui.theme.RetrofitComposeTheme
 
 class MainActivity : ComponentActivity() {
@@ -27,14 +32,18 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val apiService = RetrofitInstance.apiService
-        val repository = PostRepository(apiService)
-        val viewModel = PostViewModel(repository)
-
-        val authViewModel: AuthViewModel by viewModels {
+        val authViewModel: AuthSharedViewModel by viewModels {
             AuthViewModelFactory(applicationContext)
         }
 
+        val db = AppDatabase.getDatabase(applicationContext)
+        val roomPepository = RoomPostRepository(db.postDao())
+        val viewModelFactory = RoomPostViewModelFactory(roomPepository)
+        val roomViewModel = ViewModelProvider(this, viewModelFactory).get(RoomPostViewModel::class.java)
+
+        val apiService = RetrofitInstance.apiService
+        val repository = PostRepository(apiService)
+        val viewModel = PostViewModel(repository, roomViewModel)
 
         setContent {
             RetrofitComposeTheme {
@@ -49,7 +58,8 @@ class MainActivity : ComponentActivity() {
                     if (isLoggedIn.value) {
                         PostScreen(
                             viewModel = viewModel,
-                            onBackClick = { isLoggedIn.value = false }
+                            onBackClick = { isLoggedIn.value = false },
+                            roomViewModel
                         )
                     } else {
                         // Show Login Screen

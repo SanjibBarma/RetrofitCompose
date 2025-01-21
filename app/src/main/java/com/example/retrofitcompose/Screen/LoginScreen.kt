@@ -38,12 +38,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.example.retrofitcompose.ViewModel.AuthViewModel
+import com.example.retrofitcompose.ViewModel.AuthSharedViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
-    viewModel: AuthViewModel,
+    viewModel: AuthSharedViewModel,
     onLoginClick: () -> Unit
 ) {
     val context = LocalContext.current

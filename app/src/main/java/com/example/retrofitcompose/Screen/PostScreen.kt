@@ -1,5 +1,9 @@
+import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -8,18 +12,27 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.retrofitcompose.ViewModel.PostViewModel
+import com.example.retrofitcompose.ViewModel.RoomPostViewModel
+import com.example.retrofitcompose.ui.theme.PurpleGrey80
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostScreen(
     viewModel: PostViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    roomViewModel: RoomPostViewModel,
+//    navController: NavController
 ) {
+    val context = LocalContext.current
     val posts = viewModel.posts.collectAsState()
     val isLoading = viewModel.isLoading.collectAsState()
     val errorMessage = viewModel.errorMessage.collectAsState()
+
+    val roomPostData = roomViewModel.postData.value
 
     Scaffold(
         topBar = {
@@ -42,9 +55,10 @@ fun PostScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            // Get Data Button
             Button(
-                onClick = { viewModel.loadPosts() },
+                onClick = {
+                    viewModel.loadPosts();
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Get Data")
@@ -52,7 +66,6 @@ fun PostScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Show Loading, Error, or Data
             when {
                 isLoading.value -> {
                     Box(
@@ -72,28 +85,32 @@ fun PostScreen(
                 }
 
                 posts.value.isNotEmpty() -> {
-                    LazyColumn {
-                        items(posts.value.size) { index ->
-                            val post = posts.value[index]
-                            Card(
+
+                }
+            }
+
+            LazyColumn {
+                items(roomPostData){roomPost ->
+
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Card(
+                            shape = RoundedCornerShape(8.dp),
+                            colors = CardDefaults.cardColors(PurpleGrey80)
+                        ) {
+                            Text(
+                                text = roomPost.title,
+                                style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(8.dp),
-                                elevation = CardDefaults.cardElevation(4.dp)
-                            ) {
-                                Column(modifier = Modifier.padding(16.dp)) {
-                                    Text(
-                                        text = post.title,
-                                        style = MaterialTheme.typography.titleLarge
-                                    )
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Text(
-                                        text = post.body,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
-                            }
+                                    .padding(8.dp)
+                                    .clickable {
+
+                                        Toast.makeText(context, "${roomPost.title} is clicked", Toast.LENGTH_SHORT).show()
+//                                        navController.navigate("post_detail/${roomPost.id}")
+                                    }
+                            )
                         }
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
             }
