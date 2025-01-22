@@ -38,19 +38,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.retrofitcompose.Navigation.Screen
 import com.example.retrofitcompose.ViewModel.AuthSharedViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun LoginScreen(
     viewModel: AuthSharedViewModel,
-    onLoginClick: () -> Unit
+    navController: NavController
 ) {
     val context = LocalContext.current
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showPopup by remember { mutableStateOf(false) }
-    var showPostScreen by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(false) }
     var isProgressLoading by remember { mutableStateOf(false) }
 
@@ -112,11 +115,15 @@ fun LoginScreen(
                     isProgressLoading = true
                     val savedPassword = viewModel.getData(username)
                     if (savedPassword != null && savedPassword == password) {
-                        kotlinx.coroutines.GlobalScope.launch {
+                        kotlinx.coroutines.GlobalScope.launch(Dispatchers.IO) {
                             kotlinx.coroutines.delay(500)
-                            showPostScreen = true
-                            isProgressLoading = false
+
+                            withContext(Dispatchers.Main){
+                                isProgressLoading = false
+                                navController.navigate(Screen.PostScreen.route)
+                            }
                         }
+
                     } else {
                         Toast.makeText(context, "Invalid username or password", Toast.LENGTH_SHORT).show()
                         isProgressLoading = false
@@ -136,13 +143,14 @@ fun LoginScreen(
                         Toast.makeText(context, "Invalid username or password", Toast.LENGTH_SHORT).show()
                         isProgressLoading = false
                     }else{
-                        kotlinx.coroutines.GlobalScope.launch {
+                        kotlinx.coroutines.GlobalScope.launch (){
                             kotlinx.coroutines.delay(500)
-                            isProgressLoading = false
-
+//                            withContext(Dispatchers.Main){
                             viewModel.saveData(username, password)
                             username = ""
                             password = ""
+                            isProgressLoading = false
+//                            }
                         }
                         Toast.makeText(context, "Data saved!", Toast.LENGTH_SHORT).show()
                     }
@@ -175,10 +183,6 @@ fun LoginScreen(
                 viewModel,
                 onDismiss = { showPopup = false }
             )
-        }
-
-        if (showPostScreen) {
-            onLoginClick()
         }
     }
 }

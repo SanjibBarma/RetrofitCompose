@@ -20,4 +20,8 @@ class RoomPostRepository(private val postDao: PostDao) {
     suspend fun getPostById(id: Int): PostEntity? {
         return postDao.getPostById(id)
     }
+
+    suspend fun deletePost(id: Int){
+        postDao.deleteRow(id)
+    }
 }

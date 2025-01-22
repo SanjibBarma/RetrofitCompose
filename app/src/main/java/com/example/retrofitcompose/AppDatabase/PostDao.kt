@@ -16,6 +16,9 @@ interface PostDao {
     @Query("SELECT * FROM posts_table WHERE id = :id")
     suspend fun getById(id: Int): PostEntity?
 
-    @Query("SELECT * FROM posts_table WHERE id = :postId LIMIT 1")
-    suspend fun getPostById(postId: Int): PostEntity?
+    @Query("SELECT * FROM posts_table WHERE id = :id LIMIT 1")
+    suspend fun getPostById(id: Int): PostEntity?
+
+    @Query("DELETE FROM posts_table WHERE id = :id")
+    suspend fun deleteRow(id: Int)
 }

@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import com.example.retrofitcompose.AppDatabase.AppDatabase
+import com.example.retrofitcompose.Navigation.Navigation
 import com.example.retrofitcompose.Network.RetrofitInstance
 import com.example.retrofitcompose.Repository.PostRepository
 import com.example.retrofitcompose.Repository.RoomPostRepository
@@ -43,31 +44,21 @@ class MainActivity : ComponentActivity() {
 
         val apiService = RetrofitInstance.apiService
         val repository = PostRepository(apiService)
-        val viewModel = PostViewModel(repository, roomViewModel)
+        val postViewModel = PostViewModel(repository, roomViewModel)
 
         setContent {
             RetrofitComposeTheme {
-                val isLoggedIn = remember { mutableStateOf(false) }
-
                 Surface (
                     modifier = Modifier
                         .fillMaxSize()
                         .systemBarsPadding(),
                     color = MaterialTheme.colorScheme.background
                 ){
-                    if (isLoggedIn.value) {
-                        PostScreen(
-                            viewModel = viewModel,
-                            onBackClick = { isLoggedIn.value = false },
-                            roomViewModel
-                        )
-                    } else {
-                        // Show Login Screen
-                        LoginScreen(
-                            viewModel = authViewModel,
-                            onLoginClick = { isLoggedIn.value = true }
-                        )
-                    }
+                    Navigation(
+                        authViewModel,
+                        postViewModel,
+                        roomViewModel,
+                    )
                 }
             }
         }

@@ -35,8 +35,13 @@ class RoomPostViewModel(private val repository: RoomPostRepository): ViewModel()
         return _postData.value.size
     }
 
-    suspend fun getPostById(postId: Int): PostEntity? {
-        return repository.getPostById(postId)
+    suspend fun getPostById(id: Int): PostEntity? {
+        return repository.getPostById(id)
+    }
+
+    suspend fun deletePost(id: Int) {
+        repository.deletePost(id)
+        loadPosts()
     }
 
 }
