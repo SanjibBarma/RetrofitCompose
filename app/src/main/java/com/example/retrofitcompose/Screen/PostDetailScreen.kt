@@ -92,7 +92,7 @@ fun PostDetailScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        text = roomPost?.value ?: "No Body Found", // Assuming 'value' contains the post content
+                        text = roomPost?.value ?: "No Body Found",
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.fillMaxWidth(),
                         color = Color.Black,

@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.retrofitcompose.Helper.UIState
 import com.example.retrofitcompose.Navigation.Screen
 import com.example.retrofitcompose.ViewModel.PostViewModel
 import com.example.retrofitcompose.ViewModel.RoomPostViewModel
@@ -39,9 +40,9 @@ fun PostScreen(
     BackHandler {  }
 
     val context = LocalContext.current
-    val posts = viewModel.posts.collectAsState()
-    val isLoading = viewModel.isLoading.collectAsState()
-    val errorMessage = viewModel.errorMessage.collectAsState()
+    val postState = viewModel.posts.collectAsState()
+//    val isLoading = viewModel.isLoading.collectAsState()
+//    val errorMessage = viewModel.errorMessage.collectAsState()
 
     val roomPostData = roomViewModel.postData.value
     val coroutineScope = rememberCoroutineScope()
@@ -78,14 +79,87 @@ fun PostScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            when {
-                isLoading.value -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
+            if (roomPostData.size > 0){
+                when(val state = postState.value){
+                    is UIState.Error -> {
+                        Text(
+                            text = state.exception.message ?: "Unknown error",
+                            color = Color.Red,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
                     }
+                    is UIState.Loading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                    is UIState.Success -> {
+                        LazyColumn {
+                            items(roomPostData){roomPost ->
+
+                                Column(modifier = Modifier.fillMaxWidth()) {
+                                    Card(
+                                        shape = RoundedCornerShape(8.dp),
+                                        colors = CardDefaults.cardColors(Color.White),
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+
+                                        Row (
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(8.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ){
+                                            Text(
+                                                text = roomPost.title,
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                color = Color.Black,
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(8.dp)
+                                                    .weight(1f)
+                                                    .clickable {
+
+                                                        //Toast.makeText(context, "${roomPost.title} is clicked", Toast.LENGTH_SHORT).show()
+                                                        navController.navigate(Screen.PostDetailScreen.withArgs(roomPost.id.toString()))
+                                                    },
+                                            )
+
+                                            IconButton(onClick = {
+                                                coroutineScope.launch {
+                                                    roomViewModel.deletePost(roomPost.id)
+                                                }
+                                            }) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Delete,
+                                                    contentDescription = "Delete",
+                                                    tint = Color.Black
+                                                )
+                                            }
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+                            }
+                        }
+                    }
+                }
+            }else{
+                Text(
+                    text = "Room data is empty!",
+                    color = Color.Red,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally),
+                )
+            }
+
+            /*when {
+                isLoading.value -> {
+
                 }
 
                 errorMessage.value != null -> {
@@ -149,7 +223,7 @@ fun PostScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
-            }
+            }*/
         }
     }
 }
