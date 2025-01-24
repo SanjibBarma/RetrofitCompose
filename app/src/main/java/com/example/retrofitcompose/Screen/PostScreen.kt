@@ -87,8 +87,11 @@ fun PostScreen(
                             color = Color.Red,
                             modifier = Modifier.align(Alignment.CenterHorizontally)
                         )
+//                        Toast.makeText(context, "Data error: $state", Toast.LENGTH_SHORT).show()
                     }
                     is UIState.Loading -> {
+//                        Toast.makeText(context, "Data loading: $state", Toast.LENGTH_SHORT).show()
+
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -97,6 +100,8 @@ fun PostScreen(
                         }
                     }
                     is UIState.Success -> {
+//                        Toast.makeText(context, "Data success: $state", Toast.LENGTH_SHORT).show()
+
                         LazyColumn {
                             items(roomPostData){roomPost ->
 
@@ -156,74 +161,6 @@ fun PostScreen(
                         .align(Alignment.CenterHorizontally),
                 )
             }
-
-            /*when {
-                isLoading.value -> {
-
-                }
-
-                errorMessage.value != null -> {
-                    Text(
-                        text = errorMessage.value ?: "",
-                        color = Color.Red,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                }
-
-                posts.value.isNotEmpty() -> {
-
-                }
-            }
-
-            LazyColumn {
-                items(roomPostData){roomPost ->
-
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Card(
-                            shape = RoundedCornerShape(8.dp),
-                            colors = CardDefaults.cardColors(Color.White),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-
-                            Row (
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ){
-                                Text(
-                                    text = roomPost.title,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = Color.Black,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(8.dp)
-                                        .weight(1f)
-                                        .clickable {
-
-                                            //Toast.makeText(context, "${roomPost.title} is clicked", Toast.LENGTH_SHORT).show()
-                                            navController.navigate(Screen.PostDetailScreen.withArgs(roomPost.id.toString()))
-                                        },
-                                )
-
-                                IconButton(onClick = {
-                                    coroutineScope.launch {
-                                        roomViewModel.deletePost(roomPost.id)
-                                    }
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Delete",
-                                        tint = Color.Black
-                                    )
-                                }
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                }
-            }*/
         }
     }
 }
