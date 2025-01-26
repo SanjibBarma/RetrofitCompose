@@ -5,15 +5,11 @@ import com.example.retrofitcompose.Model.PostEntity
 
 class RoomPostRepository(private val postDao: PostDao) {
 
-    suspend fun insertData(postEntity: PostEntity){
-        postDao.insert(postEntity)
+    suspend fun upsertData(postEntity: PostEntity){
+        postDao.upsertData(postEntity)
     }
 
-    suspend fun getDataById(id: Int): PostEntity?{
-        return postDao.getById(id)
-    }
-
-    suspend fun getAllNotes(): List<PostEntity>{
+    suspend fun getAllPosts(): List<PostEntity>{
         return postDao.getAllPosts()
     }
 

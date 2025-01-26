@@ -12,12 +12,14 @@ import com.example.retrofitcompose.Screen.PostScreen
 import com.example.retrofitcompose.ViewModel.AuthSharedViewModel
 import com.example.retrofitcompose.ViewModel.PostViewModel
 import com.example.retrofitcompose.ViewModel.RoomPostViewModel
+import com.example.retrofitcompose.ViewModel.RoomUserViewModel
 
 @Composable
 fun Navigation(
     authViewModel: AuthSharedViewModel,
     postViewModel: PostViewModel,
-    roomViewModel: RoomPostViewModel
+    roomViewModel: RoomPostViewModel,
+    userViewModel: RoomUserViewModel
 ) {
     val navController = rememberNavController()
 
@@ -25,7 +27,8 @@ fun Navigation(
         composable(route = Screen.LoginScreen.route){
             LoginScreen(
                 viewModel = authViewModel,
-                navController = navController
+                navController = navController,
+                userViewModel = userViewModel
             )
         }
 

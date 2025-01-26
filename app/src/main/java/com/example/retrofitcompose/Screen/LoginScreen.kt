@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.retrofitcompose.Navigation.Screen
 import com.example.retrofitcompose.ViewModel.AuthSharedViewModel
+import com.example.retrofitcompose.ViewModel.RoomUserViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -48,7 +49,8 @@ import kotlinx.coroutines.withContext
 @Composable
 fun LoginScreen(
     viewModel: AuthSharedViewModel,
-    navController: NavController
+    navController: NavController,
+    userViewModel: RoomUserViewModel
 ) {
     val context = LocalContext.current
     var username by remember { mutableStateOf("") }

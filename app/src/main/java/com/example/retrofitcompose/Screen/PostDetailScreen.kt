@@ -46,6 +46,7 @@ fun PostDetailScreen(
 ) {
 
     var roomPost by remember { mutableStateOf<PostEntity?>(null) }
+
     LaunchedEffect (key){
         if (key != null) {
             roomPost = roomViewModel.getPostById(key.toInt())
@@ -89,7 +90,7 @@ fun PostDetailScreen(
                 ){
                     Text(
                         text = roomPost?.title ?: "No Title Found",
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.fillMaxWidth(),
                         color = Color.Black,
                     )
@@ -98,7 +99,7 @@ fun PostDetailScreen(
 
                     Text(
                         text = roomPost?.value ?: "No Body Found",
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.fillMaxWidth(),
                         color = Color.Black,
                     )

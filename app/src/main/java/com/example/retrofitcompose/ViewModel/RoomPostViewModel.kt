@@ -18,21 +18,22 @@ class RoomPostViewModel(private val repository: RoomPostRepository): ViewModel()
         loadPosts()
     }
 
-    fun addData(posts: PostEntity){
+    fun upsertData(posts: PostEntity){
         viewModelScope.launch {
-            repository.insertData(posts)
-            loadPosts()
+            val existPost = repository.getPostById(posts.id)
+            if (existPost != null){
+                println("Post id ${posts.id} is already exist")
+            }else{
+                repository.upsertData(posts)
+                loadPosts()
+            }
         }
     }
 
     private fun loadPosts() {
         viewModelScope.launch {
-            _postData.value = repository.getAllNotes()
+            _postData.value = repository.getAllPosts()
         }
-    }
-
-    fun getPostDataSize(): Int {
-        return _postData.value.size
     }
 
     suspend fun getPostById(id: Int): PostEntity? {

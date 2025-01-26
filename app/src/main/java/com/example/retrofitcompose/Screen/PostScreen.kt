@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,7 +37,7 @@ fun PostScreen(
     BackHandler {  }
 
     val context = LocalContext.current
-    val postState = viewModel.posts.collectAsState()
+    val postState = viewModel.posts.observeAsState(initial = UIState.Loading)
 
     val roomPostData = roomViewModel.postData.value
     val coroutineScope = rememberCoroutineScope()
@@ -75,11 +76,8 @@ fun PostScreen(
                             color = Color.Red,
                             modifier = Modifier.align(Alignment.CenterHorizontally)
                         )
-//                        Toast.makeText(context, "Data error: $state", Toast.LENGTH_SHORT).show()
                     }
                     is UIState.Loading -> {
-//                        Toast.makeText(context, "Data loading: $state", Toast.LENGTH_SHORT).show()
-
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -88,7 +86,6 @@ fun PostScreen(
                         }
                     }
                     is UIState.Success -> {
-//                        Toast.makeText(context, "Data success...", Toast.LENGTH_SHORT).show()
 
                         LazyColumn {
                             items(roomPostData){roomPost ->
@@ -107,9 +104,17 @@ fun PostScreen(
                                             horizontalArrangement = Arrangement.SpaceBetween,
                                             verticalAlignment = Alignment.CenterVertically
                                         ){
+
+                                            Text(
+                                                text = roomPost.id.toString(),
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = Color.Black,
+                                                modifier = Modifier.padding(end = 8.dp)
+                                            )
+
                                             Text(
                                                 text = roomPost.title,
-                                                style = MaterialTheme.typography.bodyLarge,
+                                                style = MaterialTheme.typography.bodyMedium,
                                                 color = Color.Black,
                                                 modifier = Modifier
                                                     .fillMaxWidth()
