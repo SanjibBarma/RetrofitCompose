@@ -1,6 +1,5 @@
 package com.example.retrofitcompose.Navigation
 
-import PostScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -9,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.retrofitcompose.Screen.LoginScreen
 import com.example.retrofitcompose.Screen.PostDetailScreen
+import com.example.retrofitcompose.Screen.PostScreen
 import com.example.retrofitcompose.ViewModel.AuthSharedViewModel
 import com.example.retrofitcompose.ViewModel.PostViewModel
 import com.example.retrofitcompose.ViewModel.RoomPostViewModel
@@ -17,7 +17,7 @@ import com.example.retrofitcompose.ViewModel.RoomPostViewModel
 fun Navigation(
     authViewModel: AuthSharedViewModel,
     postViewModel: PostViewModel,
-    roomViewModel: RoomPostViewModel,
+    roomViewModel: RoomPostViewModel
 ) {
     val navController = rememberNavController()
 

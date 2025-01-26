@@ -1,6 +1,5 @@
 package com.example.retrofitcompose
 
-import PostScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import com.example.retrofitcompose.AppDatabase.AppDatabase
+import com.example.retrofitcompose.Helper.ConnectivityObserver
 import com.example.retrofitcompose.Navigation.Navigation
 import com.example.retrofitcompose.Network.RetrofitInstance
 import com.example.retrofitcompose.Repository.PostRepository
@@ -44,7 +44,8 @@ class MainActivity : ComponentActivity() {
 
         val apiService = RetrofitInstance.apiService
         val repository = PostRepository(apiService)
-        val postViewModel = PostViewModel(repository, roomViewModel)
+        val connectivityObserver = ConnectivityObserver(applicationContext)
+        val postViewModel = PostViewModel(repository, roomViewModel, connectivityObserver)
 
         setContent {
             RetrofitComposeTheme {

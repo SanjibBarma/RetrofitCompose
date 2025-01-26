@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.retrofitcompose.Compose.CustomAppBar
 import com.example.retrofitcompose.Model.PostEntity
 import com.example.retrofitcompose.ViewModel.RoomPostViewModel
 
@@ -53,16 +54,20 @@ fun PostDetailScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Post") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                }
+//            TopAppBar(
+//                title = { Text("Post") },
+//                navigationIcon = {
+//                    IconButton(onClick = onBackClick) {
+//                        Icon(
+//                            imageVector = Icons.Default.ArrowBack,
+//                            contentDescription = "Back"
+//                        )
+//                    }
+//                }
+//            )
+            CustomAppBar(
+                "Post",
+                onBackClick = onBackClick
             )
         }
     ) { innerPadding ->

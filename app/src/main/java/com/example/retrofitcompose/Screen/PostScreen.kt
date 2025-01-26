@@ -1,5 +1,5 @@
-import android.provider.CalendarContract.Colors
-import android.widget.Toast
+package com.example.retrofitcompose.Screen
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -7,11 +7,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -20,15 +18,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.retrofitcompose.Compose.CustomAppBar
 import com.example.retrofitcompose.Helper.UIState
 import com.example.retrofitcompose.Navigation.Screen
 import com.example.retrofitcompose.ViewModel.PostViewModel
 import com.example.retrofitcompose.ViewModel.RoomPostViewModel
-import com.example.retrofitcompose.ui.theme.PurpleGrey80
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostScreen(
     viewModel: PostViewModel,
@@ -41,24 +37,16 @@ fun PostScreen(
 
     val context = LocalContext.current
     val postState = viewModel.posts.collectAsState()
-//    val isLoading = viewModel.isLoading.collectAsState()
-//    val errorMessage = viewModel.errorMessage.collectAsState()
 
     val roomPostData = roomViewModel.postData.value
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Post List") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                }
+            CustomAppBar(
+                "Post List",
+//                onBackClick = onBackClick
+                null
             )
         }
     ) { innerPadding ->
@@ -79,7 +67,7 @@ fun PostScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (roomPostData.size > 0){
+            if (roomPostData.isNotEmpty()){
                 when(val state = postState.value){
                     is UIState.Error -> {
                         Text(
@@ -100,7 +88,7 @@ fun PostScreen(
                         }
                     }
                     is UIState.Success -> {
-//                        Toast.makeText(context, "Data success: $state", Toast.LENGTH_SHORT).show()
+//                        Toast.makeText(context, "Data success...", Toast.LENGTH_SHORT).show()
 
                         LazyColumn {
                             items(roomPostData){roomPost ->
@@ -128,8 +116,6 @@ fun PostScreen(
                                                     .padding(8.dp)
                                                     .weight(1f)
                                                     .clickable {
-
-                                                        //Toast.makeText(context, "${roomPost.title} is clicked", Toast.LENGTH_SHORT).show()
                                                         navController.navigate(Screen.PostDetailScreen.withArgs(roomPost.id.toString()))
                                                     },
                                             )
