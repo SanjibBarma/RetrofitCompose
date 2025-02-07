@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,8 +44,9 @@ import com.example.retrofitcompose.Navigation.Screen
 import com.example.retrofitcompose.ViewModel.AuthSharedViewModel
 import com.example.retrofitcompose.ViewModel.RoomUserViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
 fun LoginScreen(
@@ -58,6 +60,7 @@ fun LoginScreen(
     var showPopup by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(false) }
     var isProgressLoading by remember { mutableStateOf(false) }
+    var coroutineScope = rememberCoroutineScope()
 
     Box(modifier = Modifier
         .fillMaxSize()
@@ -115,20 +118,26 @@ fun LoginScreen(
             Button (
                 onClick = {
                     isProgressLoading = true
-                    val savedPassword = viewModel.getData(username)
-                    if (savedPassword != null && savedPassword == password) {
-                        kotlinx.coroutines.GlobalScope.launch(Dispatchers.IO) {
-                            kotlinx.coroutines.delay(500)
 
-                            withContext(Dispatchers.Main){
-                                isProgressLoading = false
+                    if (username.isEmpty() || password.isEmpty()){
+                        Toast.makeText(context, "Input valid username and password", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+
+                    kotlinx.coroutines.GlobalScope.launch(Dispatchers.Main) {
+                        val existingUser = userViewModel.getUserByUsername(username)
+                        if (existingUser != null){
+                            isProgressLoading = false
+                            if (existingUser.password == password){
                                 navController.navigate(Screen.PostScreen.route)
+                            }else{
+                                Toast.makeText(context, "Invalid password", Toast.LENGTH_SHORT).show()
                             }
+                        }else{
+                            isProgressLoading = false
+                            Toast.makeText(context, "Username is not found!", Toast.LENGTH_SHORT).show()
                         }
 
-                    } else {
-                        Toast.makeText(context, "Invalid username or password", Toast.LENGTH_SHORT).show()
-                        isProgressLoading = false
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -145,16 +154,24 @@ fun LoginScreen(
                         Toast.makeText(context, "Invalid username or password", Toast.LENGTH_SHORT).show()
                         isProgressLoading = false
                     }else{
-                        kotlinx.coroutines.GlobalScope.launch (){
-                            kotlinx.coroutines.delay(500)
-//                            withContext(Dispatchers.Main){
-                            viewModel.saveData(username, password)
+
+                        kotlinx.coroutines.GlobalScope.async (Dispatchers.IO){
+                            userViewModel.upsertData(username, password);
+                        }
+
+                        coroutineScope.async {
+                            val existingUser = userViewModel.getUserByUsername(username)
+                            if (existingUser?.username.equals(username)){
+                                Toast.makeText(context, "User is updated", Toast.LENGTH_SHORT).show()
+                            }else{
+                                Toast.makeText(context, "New user saved", Toast.LENGTH_SHORT).show()
+                            }
+
+                            delay(500)
                             username = ""
                             password = ""
                             isProgressLoading = false
-//                            }
                         }
-                        Toast.makeText(context, "Data saved!", Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -183,7 +200,8 @@ fun LoginScreen(
         if (showPopup) {
             UserDataPopup(
                 viewModel,
-                onDismiss = { showPopup = false }
+                onDismiss = { showPopup = false },
+                userViewModel
             )
         }
     }

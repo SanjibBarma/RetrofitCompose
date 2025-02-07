@@ -10,6 +10,7 @@ import com.example.retrofitcompose.Helper.formatPostsAsJson
 import com.example.retrofitcompose.Model.Post
 import com.example.retrofitcompose.Model.PostEntity
 import com.example.retrofitcompose.Repository.PostRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class PostViewModel(
@@ -27,6 +28,8 @@ class PostViewModel(
                 _posts.value = UIState.Loading
                 try {
                     val response = repository.fetchPosts()
+                    delay(1000)
+
                     if (response.isNotEmpty()) {
                         _posts.value = UIState.Success(response)
                         for (i in 0 until response.size){

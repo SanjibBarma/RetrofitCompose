@@ -2,6 +2,7 @@ package com.example.retrofitcompose.Repository
 
 import com.example.retrofitcompose.AppDatabase.PostDao
 import com.example.retrofitcompose.Model.PostEntity
+import kotlinx.coroutines.flow.Flow
 
 class RoomPostRepository(private val postDao: PostDao) {
 
@@ -9,7 +10,7 @@ class RoomPostRepository(private val postDao: PostDao) {
         postDao.upsertData(postEntity)
     }
 
-    suspend fun getAllPosts(): List<PostEntity>{
+    fun getAllPosts(): Flow<List<PostEntity>>{
         return postDao.getAllPosts()
     }
 

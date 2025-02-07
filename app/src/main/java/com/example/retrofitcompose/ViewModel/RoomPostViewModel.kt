@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.retrofitcompose.Model.PostEntity
 import com.example.retrofitcompose.Repository.RoomPostRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class RoomPostViewModel(private val repository: RoomPostRepository): ViewModel() {
@@ -13,26 +14,19 @@ class RoomPostViewModel(private val repository: RoomPostRepository): ViewModel()
     private val _postData = mutableStateOf<List<PostEntity>>(emptyList())
     val postData: State<List<PostEntity>> get() = _postData
 
-
-    init {
-        loadPosts()
-    }
-
     fun upsertData(posts: PostEntity){
         viewModelScope.launch {
-            val existPost = repository.getPostById(posts.id)
-            if (existPost != null){
-                println("Post id ${posts.id} is already exist")
-            }else{
-                repository.upsertData(posts)
-                loadPosts()
-            }
+            repository.upsertData(posts)
         }
     }
 
-    private fun loadPosts() {
+    fun loadPostsFromRoom() {
         viewModelScope.launch {
-            _postData.value = repository.getAllPosts()
+            repository.getAllPosts()
+                .collect{
+                    post ->
+                    _postData.value = post
+                }
         }
     }
 
@@ -40,9 +34,10 @@ class RoomPostViewModel(private val repository: RoomPostRepository): ViewModel()
         return repository.getPostById(id)
     }
 
-    suspend fun deletePost(id: Int) {
-        repository.deletePost(id)
-        loadPosts()
+    fun deletePost(id: Int) {
+        viewModelScope.launch (Dispatchers.IO){
+            repository.deletePost(id)
+        }
     }
 
 }

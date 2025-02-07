@@ -10,13 +10,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.retrofitcompose.Compose.CustomAppBar
@@ -24,7 +22,6 @@ import com.example.retrofitcompose.Helper.UIState
 import com.example.retrofitcompose.Navigation.Screen
 import com.example.retrofitcompose.ViewModel.PostViewModel
 import com.example.retrofitcompose.ViewModel.RoomPostViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun PostScreen(
@@ -33,14 +30,14 @@ fun PostScreen(
     roomViewModel: RoomPostViewModel,
     navController: NavController
 ) {
-
     BackHandler {  }
-
-    val context = LocalContext.current
     val postState = viewModel.posts.observeAsState(initial = UIState.Loading)
-
     val roomPostData = roomViewModel.postData.value
-    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit){
+        viewModel.loadPosts();
+        roomViewModel.loadPostsFromRoom()
+    }
 
     Scaffold(
         topBar = {
@@ -87,60 +84,59 @@ fun PostScreen(
                     }
                     is UIState.Success -> {
 
-                        LazyColumn {
-                            items(roomPostData){roomPost ->
+                    }
+                }
 
-                                Column(modifier = Modifier.fillMaxWidth()) {
-                                    Card(
-                                        shape = RoundedCornerShape(8.dp),
-                                        colors = CardDefaults.cardColors(Color.White),
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
+                LazyColumn {
+                    items(roomPostData){roomPost ->
 
-                                        Row (
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(8.dp),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ){
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Card(
+                                shape = RoundedCornerShape(8.dp),
+                                colors = CardDefaults.cardColors(Color.White),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
 
-                                            Text(
-                                                text = roomPost.id.toString(),
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = Color.Black,
-                                                modifier = Modifier.padding(end = 8.dp)
-                                            )
+                                Row (
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ){
 
-                                            Text(
-                                                text = roomPost.title,
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = Color.Black,
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(8.dp)
-                                                    .weight(1f)
-                                                    .clickable {
-                                                        navController.navigate(Screen.PostDetailScreen.withArgs(roomPost.id.toString()))
-                                                    },
-                                            )
+                                    Text(
+                                        text = roomPost.id.toString(),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = Color.Black,
+                                        modifier = Modifier.padding(end = 8.dp)
+                                    )
 
-                                            IconButton(onClick = {
-                                                coroutineScope.launch {
-                                                    roomViewModel.deletePost(roomPost.id)
-                                                }
-                                            }) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Delete,
-                                                    contentDescription = "Delete",
-                                                    tint = Color.Black
-                                                )
-                                            }
-                                        }
+                                    Text(
+                                        text = roomPost.title,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = Color.Black,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(8.dp)
+                                            .weight(1f)
+                                            .clickable {
+                                                navController.navigate(Screen.PostDetailScreen.withArgs(roomPost.id.toString()))
+                                            },
+                                    )
+
+                                    IconButton(onClick = {
+                                        roomViewModel.deletePost(roomPost.id)
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "Delete",
+                                            tint = Color.Black
+                                        )
                                     }
-                                    Spacer(modifier = Modifier.height(8.dp))
                                 }
                             }
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
                 }

@@ -1,47 +1,58 @@
 package com.example.retrofitcompose.ViewModel
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.retrofitcompose.Model.UserEntity
 import com.example.retrofitcompose.Repository.RoomUserRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class RoomUserViewModel(private val roomUserRepository: RoomUserRepository): ViewModel() {
 
-    private val _userData = mutableStateOf<List<UserEntity>>(emptyList())
-    val userData: State<List<UserEntity>> get() = _userData
+    private val _userData = MutableStateFlow<List<UserEntity>>(emptyList())
+    val userData: StateFlow<List<UserEntity>> = _userData
 
 
-    init {
-        loadAllUser()
+    fun loadUsers(){
+        viewModelScope.launch {
+            roomUserRepository.getAllUser()
+                .collect { user ->
+                    _userData.value = user
+                }
+        }
     }
 
-    fun upsertData(user: UserEntity){
+    fun upsertData(username: String, password: String){
         viewModelScope.launch {
-            val existPost = roomUserRepository.getUserById(user.id)
-            if (existPost != null){
-                println("Post id ${user.id} is already exist")
+            val existingUser = roomUserRepository.getUserByUsername(username)
+            if (existingUser != null){
+                //if exist just changing the password
+                val updateUser = existingUser.copy(password = password)
+                roomUserRepository.upsertData(updateUser);
+                println("Username $username is already exist")
             }else{
-                roomUserRepository.upsertData(user)
-                loadAllUser()
+                //if new user just put all the data
+                val newUser = UserEntity(username = username, password = password)
+                roomUserRepository.upsertData(newUser)
+                println("New user $username is Created")
             }
         }
+    }
+
+    suspend fun getUserByUsername(username: String): UserEntity? {
+        return roomUserRepository.getUserByUsername(username)
     }
 
     suspend fun getPostById(id: Int): UserEntity? {
         return roomUserRepository.getUserById(id)
     }
 
-    suspend fun deletePost(id: Int) {
-        roomUserRepository.deleteUser(id)
-        loadAllUser()
-    }
-
-    private fun loadAllUser() {
-        viewModelScope.launch {
-            _userData.value = roomUserRepository.getAllUser()
+    fun deletePost(id: Int) {
+        viewModelScope.launch (Dispatchers.IO){
+            roomUserRepository.deleteUser(id)
         }
     }
+
 }
